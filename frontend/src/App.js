@@ -16,13 +16,16 @@ import {
   useMediaQuery,
   CssBaseline,
   ThemeProvider,
-  createTheme
+  createTheme,
+  Tabs,
+  Tab
 } from "@mui/material";
 import {
   Close as CloseIcon,
   CalendarToday as CalendarIcon,
   Person as PersonIcon,
-  OpenInNew as OpenInNewIcon
+  OpenInNew as OpenInNewIcon,
+  CompareArrows as CompareIcon
 } from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
 
@@ -84,6 +87,8 @@ const theme = createTheme({
 function App() {
   const [articles, setArticles] = useState([]);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [originalArticle, setOriginalArticle] = useState(null);
+  const [viewMode, setViewMode] = useState("enhanced");
   const [loading, setLoading] = useState(true);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -99,7 +104,19 @@ function App() {
       });
   }, []);
 
+  useEffect(() => {
+    if (selectedArticle && selectedArticle.is_generated && selectedArticle.original_article_id) {
+      const foundOriginal = articles.find(a => a.id === selectedArticle.original_article_id);
+      setOriginalArticle(foundOriginal || null);
+      setViewMode("enhanced");
+    } else {
+      setOriginalArticle(null);
+      setViewMode("enhanced");
+    }
+  }, [selectedArticle, articles]);
+
   const formatDate = (dateString) => {
+    if (!dateString) return "";
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -115,12 +132,13 @@ function App() {
     );
   }
 
+  const currentViewArticle = viewMode === "original" && originalArticle ? originalArticle : selectedArticle;
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="lg" sx={{ py: 5 }}>
 
-        {/* Header */}
         <Box textAlign="center" mb={6}>
           <Typography variant="h1">Article Feed</Typography>
           <Typography variant="subtitle1" color="text.secondary" mt={2}>
@@ -178,7 +196,7 @@ function App() {
         <Dialog
           open={!!selectedArticle}
           onClose={() => setSelectedArticle(null)}
-          maxWidth="md"
+          maxWidth="lg"
           fullWidth
           fullScreen={isMobile}
           PaperProps={{
@@ -195,20 +213,44 @@ function App() {
                   top: 20,
                   bgcolor: 'background.paper',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  '&:hover': { bgcolor: '#f1f5f9' }
+                  '&:hover': { bgcolor: '#f1f5f9' },
+                  zIndex: 10
                 }}
               >
                 <CloseIcon />
               </IconButton>
 
               <Box textAlign="center" mb={4} mt={2}>
+                {originalArticle && (
+                  <Box display="flex" justifyContent="center" mb={3}>
+                    <Tabs
+                      value={viewMode}
+                      onChange={(e, v) => setViewMode(v)}
+                      textColor="secondary"
+                      indicatorColor="secondary"
+                      sx={{ bgcolor: "#f8fafc", borderRadius: 2, p: 0.5 }}
+                    >
+                      <Tab
+                        value="enhanced"
+                        label="AI Enhanced"
+                        sx={{ textTransform: 'none', fontWeight: 600, minHeight: 40 }}
+                      />
+                      <Tab
+                        value="original"
+                        label="Original Source"
+                        sx={{ textTransform: 'none', fontWeight: 600, minHeight: 40 }}
+                      />
+                    </Tabs>
+                  </Box>
+                )}
+
                 <Chip
-                  label={selectedArticle.is_generated ? "AI Enhanced" : "Original Source"}
+                  label={currentViewArticle.is_generated ? "AI Enhanced" : "Original Source"}
                   sx={{
                     mb: 2,
                     fontWeight: 600,
-                    bgcolor: selectedArticle.is_generated ? alpha(theme.palette.secondary.main, 0.1) : "#f1f5f9",
-                    color: selectedArticle.is_generated ? "secondary.main" : "#64748b"
+                    bgcolor: currentViewArticle.is_generated ? alpha(theme.palette.secondary.main, 0.1) : "#f1f5f9",
+                    color: currentViewArticle.is_generated ? "secondary.main" : "#64748b"
                   }}
                 />
                 <Typography variant="h3" fontWeight={800} gutterBottom sx={{
@@ -217,21 +259,21 @@ function App() {
                   WebkitTextFillColor: "transparent",
                   fontSize: { xs: "1.75rem", md: "2.5rem" }
                 }}>
-                  {selectedArticle.title}
+                  {currentViewArticle.title}
                 </Typography>
 
                 <Box display="flex" justifyContent="center" gap={3} color="text.secondary" fontSize="0.9rem">
                   <Box display="flex" alignItems="center" gap={0.5}>
-                    <CalendarIcon fontSize="small" /> {formatDate(selectedArticle.created_at)}
+                    <CalendarIcon fontSize="small" /> {formatDate(currentViewArticle.created_at)}
                   </Box>
-                  {selectedArticle.source_url && selectedArticle.source_url !== "N/A" && (
+                  {currentViewArticle.source_url && currentViewArticle.source_url !== "N/A" && (
                     <Link
-                      href={selectedArticle.source_url}
+                      href={currentViewArticle.source_url}
                       target="_blank"
                       underline="hover"
                       sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "secondary.main", fontWeight: 500 }}
                     >
-                      View Original <OpenInNewIcon fontSize="small" />
+                      View Link <OpenInNewIcon fontSize="small" />
                     </Link>
                   )}
                 </Box>
@@ -246,7 +288,7 @@ function App() {
                 '& ul, & ol': { pl: 3, mb: 2 },
                 '& li': { mb: 1 }
               }}>
-                <ReactMarkdown>{selectedArticle.content}</ReactMarkdown>
+                <ReactMarkdown>{currentViewArticle.content}</ReactMarkdown>
               </Box>
 
             </DialogContent>

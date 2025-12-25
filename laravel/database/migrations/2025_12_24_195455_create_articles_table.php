@@ -17,6 +17,8 @@ return new class extends Migration {
             $table->string('source_url')->nullable();
             $table->boolean('is_generated')->default(false);
             $table->text('references')->nullable();
+            $table->unsignedBigInteger('original_article_id')->nullable();
+            $table->foreign('original_article_id')->references('id')->on('articles')->onDelete('cascade');
             $table->timestamps();
         });
     }

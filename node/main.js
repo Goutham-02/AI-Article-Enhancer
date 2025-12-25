@@ -158,7 +158,8 @@ async function saveToDatabase(originalArticle, rewrittenData, referenceLinks) {
             content: finalBody,
             references: referenceLinks,
             source_url: originalArticle.source_url || "N/A",
-            is_generated: true
+            is_generated: true,
+            original_article_id: originalArticle.id
         };
 
         const response = await axios.post(API_URL, payload);

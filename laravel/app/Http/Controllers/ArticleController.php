@@ -27,7 +27,8 @@ class ArticleController extends Controller
             'content' => 'required|string',
             'source_url' => 'nullable|string',
             'is_generated' => 'boolean',
-            'references' => 'nullable|array'
+            'references' => 'nullable|array',
+            'original_article_id' => 'nullable|exists:articles,id'
         ]);
 
         return Article::create($data);

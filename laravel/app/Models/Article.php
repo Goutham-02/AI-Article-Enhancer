@@ -12,10 +12,16 @@ class Article extends Model
         'source_url',
         'is_generated',
         'references',
+        'original_article_id',
     ];
 
     protected $casts = [
         'is_generated' => 'boolean',
         'references' => 'array',
     ];
+
+    public function original()
+    {
+        return $this->belongsTo(Article::class, 'original_article_id');
+    }
 }
