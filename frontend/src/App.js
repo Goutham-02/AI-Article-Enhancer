@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { getArticles } from "./api";
 import {
   Container,
   Grid,
@@ -25,9 +24,15 @@ import {
   CalendarToday as CalendarIcon,
   Person as PersonIcon,
   OpenInNew as OpenInNewIcon,
-  CompareArrows as CompareIcon
 } from "@mui/icons-material";
 import { alpha } from "@mui/material/styles";
+import axios from "axios";
+
+const API = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:8000/api";
+console.log("API URL:", API);
+
+const getArticles = () =>
+  axios.get(`${API}/articles`).then(res => res.data);
 
 const theme = createTheme({
   typography: {
