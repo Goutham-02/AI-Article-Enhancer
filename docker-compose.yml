@@ -1,0 +1,64 @@
+services:
+  # Laravel App
+  laravel:
+    build:
+      context: ./laravel
+      dockerfile: Dockerfile
+    image: laravel-app
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./laravel:/var/www
+    ports:
+      - "8000:80"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: laravel
+      DB_USERNAME: sail
+      DB_PASSWORD: password
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Node AI Engine
+  ai-engine:
+    build:
+      context: ./node
+      dockerfile: Dockerfile
+    image: ai-engine
+    container_name: ai_engine
+    restart: unless-stopped
+    environment:
+      LARAVEL_API: "http://laravel:80/api/articles"
+      SERP_API_KEY: "${SERP_API_KEY}"
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+    depends_on:
+      - laravel
+    networks:
+      - app-network
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: sail
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:

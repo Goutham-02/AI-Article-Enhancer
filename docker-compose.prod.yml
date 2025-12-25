@@ -1,0 +1,39 @@
+services:
+  # Laravel App (Pulls from Docker Hub)
+  laravel:
+    image: ${DOCKER_USERNAME}/laravel-app:latest
+    container_name: laravel_web
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      APP_ENV: production
+      APP_DEBUG: false
+      DB_CONNECTION: mysql
+      DB_HOST: ${DB_HOST}
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - app-prod-network
+
+  # Node AI Engine (Pulls from Docker Hub)
+  ai-engine:
+    image: ${DOCKER_USERNAME}/ai-engine:latest
+    container_name: ai_engine_worker
+    restart: always
+    environment:
+      # In running on same Azure App Service via Compose, use service name.
+      # If separated, use full URL.
+      LARAVEL_API: "http://laravel:80/api/articles"
+      SERP_API_KEY: "${SERP_API_KEY}"
+      GEMINI_API_KEY: "${GEMINI_API_KEY}"
+    depends_on:
+      - laravel
+    networks:
+      - app-prod-network
+
+networks:
+  app-prod-network:
+    driver: bridge

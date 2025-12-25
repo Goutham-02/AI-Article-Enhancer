@@ -126,8 +126,48 @@ npm start
 
 ## 🌐 Live Demo
 
-You can view the live frontend application here:  
-**[🔗 View Live Application](http://localhost:3000)**  
-*(Note: Since this is a local setup, the link refers to your local instance)*
+Experience the full application here:
+### **[✨ Launch AI Article Enhancer](https://ai-article-enhancer.vercel.app/)**
 
 ---
+
+## 📦 Docker Images
+
+The backend services are containerized and available on Docker Hub:
+
+| Service | Docker Hub Link | Description |
+|:---|:---|:---|
+| **Laravel Backend** | [goutham002/laravel-app](https://hub.docker.com/r/goutham002/laravel-app) | System of Record API |
+| **AI Engine** | [goutham002/ai-engine](https://hub.docker.com/r/goutham002/ai-engine) | Background Node.js Worker |
+
+---
+
+---
+
+## ☁️ Deployment
+
+### Docker Hub
+To push your images to Docker Hub for use in Azure or other platforms:
+
+1.  Run the helper script in PowerShell:
+    ```powershell
+    ./build_and_push.ps1
+    ```
+2.  Enter your Docker Hub username when prompted.
+3.  The script will build both the Laravel Backend and Node.js AI Engine and push them to your registry.
+
+### Azure Web App (Multi-Container)
+1.  Create an **Azure Web App** (S1 Plan or higher recommended).
+2.  In **Deployment Center**, choose **Docker Compose**.
+3.  Select **Docker Hub** as Registry Source.
+4.  Upload the `docker-compose.prod.yml` file.
+5.  **Crucial**: In **Configuration** (Environment Variables), set all the variables referenced in the compose file:
+    *   `DOCKER_USERNAME`: Your Docker Hub username
+    *   `DB_HOST`: Your Azure MySQL Host
+    *   `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`: Database credentials
+    *   `SERP_API_KEY`: Your SerpAPI Key
+    *   `GEMINI_API_KEY`: Your Gemini API Key
+
+---
+
+## 🌐 Live Demo
