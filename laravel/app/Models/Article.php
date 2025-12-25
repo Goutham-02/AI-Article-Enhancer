@@ -11,5 +11,11 @@ class Article extends Model
         'content',
         'source_url',
         'is_generated',
+        'references',
+    ];
+
+    protected $casts = [
+        'is_generated' => 'boolean',
+        'references' => 'array',
     ];
 }

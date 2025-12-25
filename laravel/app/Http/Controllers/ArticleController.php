@@ -26,7 +26,8 @@ class ArticleController extends Controller
             'title' => 'required|string',
             'content' => 'required|string',
             'source_url' => 'nullable|string',
-            'is_generated' => 'boolean'
+            'is_generated' => 'boolean',
+            'references' => 'nullable|array'
         ]);
 
         return Article::create($data);
@@ -41,7 +42,8 @@ class ArticleController extends Controller
             'title' => 'sometimes|string',
             'content' => 'sometimes|string',
             'source_url' => 'nullable|string',
-            'is_generated' => 'boolean'
+            'is_generated' => 'boolean',
+            'references' => 'nullable|array'
         ]);
 
         $article->update($data);

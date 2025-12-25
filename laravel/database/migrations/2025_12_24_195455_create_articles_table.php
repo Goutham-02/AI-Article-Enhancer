@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->text('content');
             $table->string('source_url')->nullable();
             $table->boolean('is_generated')->default(false);
+            $table->text('references')->nullable();
             $table->timestamps();
         });
     }
